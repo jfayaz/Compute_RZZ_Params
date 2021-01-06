@@ -37,8 +37,8 @@ To be efficient and prevent re-computations, before computing the RZZ parameters
 
 
 
-Citation Reference:
+Citation Reference: (https://doi.org/10.1785/0120200240)
 
         Jawad Fayaz, Sarah Azar, Mayssa Dabaghi, and Farzin Zareian (2020). "Methodology for Validation of Simulated Ground Motions for Seismic Response Assessment: Application to Cybershake Source-Based Ground Motions". Bulletin of Seismological Society of America. 
 
-https://doi.org/10.1785/0120200240
+
