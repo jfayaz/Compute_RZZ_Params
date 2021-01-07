@@ -22,23 +22,24 @@
 %
 % INPUT:
 % The following inputs within the code are required:
-%     'GM_Input_File'      --> GM Input File containing the time-histories, DT and RRUP (as mentioned above)  
-%     'Results_Folder'     --> Folder that will contain the output RZZ parameters
-%     'Damping_Ratio'      --> Damping Rato of SDOF  
-% 
+%     'GM_Input_File'    --> GM Input File containing the time-histories, DT and RRUP (as mentioned above)  
+%     'Results_Folder'   --> Folder that will contain the output RZZ parameters
+%     'Damping_Ratio'    --> Damping Rato of SDOF  
+%     'Periods_for_Sa'   --> Periods for computing Sa for both components (after rotations as per the provided reference) of GMs
+%     
 %
 % OUTPUT:
 % The code will create 3 sub-folders inside 'Results_Folder' which include:
-%     'Non_Pulse_Like_GMs'    -->  contains RZZ parameters of GMs classified as Non-Pulse-Like
-%     'Pulse_Like_GMs'        -->  contains RZZ parameters of GMs classified as Pulse-Like
-%     'Pulse_Classification'  -->  contains Pulse Classification parameters 
-% 
+%     'Non_Pulse_Like_GMs'    -->  contains RZZ parameters and Component Sa of GMs classified as Non-Pulse-Like
+%     'Pulse_Like_GMs'        -->  contains RZZ parameters and Component Sa of GMs classified as Pulse-Like
+%     'Pulse_Classification'  -->  contains Pulse Classification parameters                
+%
 % The indices of the results are in the same order as the provided GMs
 % 
 % The code will also create 'RZZ_Params' .mat and .xlsx files that contain the important 
 % RZZs that are useful for engineering analysis. These results are also present in the workspace
-% variable named 'RZZ_PARAMS'
-% 
+% variable named 'RZZ_PARAMS'.
+% Also, the Sa of the rotated components will be provided as 'SA_SPECTRA' variable and saved as 'SA_SPECTRA.mat'
 %
 % NOTE:
 % To be efficient and prevent re-computations, before computing the RZZ parameters, the code performs
@@ -53,9 +54,9 @@ clear; clc; fclose all; close all; delete(gcp('nocreate')); current_path = pwd; 
 addpath('./functions');addpath('./functions/Pulse_Classification');addpath('./functions/pulse_fitting');
 %% ======================== USER INPUTS =============================== %%
 GM_Input_File  = 'Example_Data.mat';
-Results_Folder = 'Results_RZZ1';
+Results_Folder = 'Results_RZZ';
 Damping_Ratio  = 0.05;
-
+Periods_for_Sa = [0.1 0.2 0.5 0.75 1 2 5 10];
 
 %%===== PSUEDO INPUTS (do not change anything if you are not sure) ======%%
 load (GM_Input_File);
@@ -85,9 +86,8 @@ mkdir(pulse_direct)
 mkdir(non_pulse_direct)
 
 % Specify Sa calculations parameters
-T  = [0.1 0.2 0.5 1 2 5];
-z  = Damping_Ratio*ones(1,length(T));                     
-dy = 100*ones(1,length(T));            
+z  = Damping_Ratio*ones(1,length(Periods_for_Sa));                     
+dy = 100*ones(1,length(Periods_for_Sa));            
 alpha = 0;                             
 
 numcores = feature('numcores')-2;
@@ -129,7 +129,7 @@ parfor i=1:length(acc_1)
                             res_acc_GM  = S.residual_acc_SB;  %residual component of the pulse-like LP component
 
                             % Calculate the model parameters of the residual and orthogonal components
-                            Evaluate_Pulse_Like(GM_numb, Rrup, pulse_direct,res_acc_GM, LP_acc_GM, orth_acc_GM, dt_acc, T, z, dy, alpha);
+                            Evaluate_Pulse_Like(GM_numb, Rrup, pulse_direct,res_acc_GM, LP_acc_GM, orth_acc_GM, dt_acc, Periods_for_Sa, z, dy, alpha);
 
                             % Fit the mMP pulse parameters to the pulse extracted by SB
                             mMP_Pulse_Parameters_Fitting(ffile_name, S.pulse_velocity_SB, dt_acc, S.Tp_SB, res_acc_GM, orth_acc_GM);
@@ -139,7 +139,7 @@ parfor i=1:length(acc_1)
                     case 0 %Non-Pulse-like GM
 
                         if isfile(fullfile(non_pulse_direct,file_name))==0
-                            Evaluate_NonPulse_Like(GM_numb, Rrup, non_pulse_direct,acc_1{i,1}, acc_2{i,1}, dt_acc, T, z, dy, alpha);
+                            Evaluate_NonPulse_Like(GM_numb, Rrup, non_pulse_direct,acc_1{i,1}, acc_2{i,1}, dt_acc, Periods_for_Sa, z, dy, alpha);
                         end
 
                 end
@@ -149,6 +149,6 @@ parfor i=1:length(acc_1)
 
 end
 
-[RZZ_PARAMS] = Merge_RZZ_Params([current_path,'/',Results_Folder],length(acc_1));
+[RZZ_PARAMS,SA_SPECTRA] = Merge_RZZ_Sa_Params([current_path,'/',Results_Folder],length(acc_1));
 struc2xls([current_path,'/',Results_Folder,'/RZZ_Params.xlsx'],RZZ_PARAMS,'Sheet','RZZ')
 fprintf('\n\tPlease check the RZZ results in "%s" folder\n',Results_Folder)

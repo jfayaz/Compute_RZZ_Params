@@ -1,9 +1,15 @@
-function [RZZ_PARAMS] = Merge_RZZ_Params(current_path,No_of_GMs)
+function [RZZ_PARAMS,SA_SPECTRA] = Merge_RZZ_Sa_Params(current_path,No_of_GMs)
 direc         = [current_path];
 files         = struct2cell(dir([direc,'/Non_Pulse_Like_GMs/*.mat']))';
 Non_Pulse_GMs = str2double(regexprep(files(:,1),'[_.GMmat]',''));
 Pulse_GMs     = setdiff([1:No_of_GMs]',Non_Pulse_GMs);
 
+SA_SPECTRA{1,1}  = 'Periods'; 
+SA_SPECTRA{1,2}  = 'NP_Major_Sa'; 
+SA_SPECTRA{1,3}  = 'NP_Intermediate_Sa';
+SA_SPECTRA{1,4}  = 'P_LargestPulse_Sa';
+SA_SPECTRA{1,5}  = 'P_Orthogonal_Sa'; 
+SA_SPECTRA{1,6}  = 'Is_Pulse?';      
 for i = 1:No_of_GMs
     fprintf('Extracting RZZ for GM #%d...\n',i)
     if ismember(i,Non_Pulse_GMs)==1
@@ -31,7 +37,14 @@ for i = 1:No_of_GMs
         RZZ_DATA(i,20)= nan;
         RZZ_DATA(i,21)= 0;
         
-        clearvars -except direc Non_Pulse_GMs Pulse_GMs RZZ_DATA i GM_SPECTRA
+        SA_SPECTRA{i+1,1}  = T'; 
+        SA_SPECTRA{i+1,2}  = NP_Sa_maj'; 
+        SA_SPECTRA{i+1,3}  = NP_Sa_int'; 
+        SA_SPECTRA{i+1,4}  = []; 
+        SA_SPECTRA{i+1,5}  = []; 
+        SA_SPECTRA{i+1,6}  = 0;
+        
+        clearvars -except direc Non_Pulse_GMs Pulse_GMs RZZ_DATA i Periods SA_SPECTRA
     else
         load([direc,'/Pulse_Like_GMs/GM_',num2str(i),'.mat']);
         RZZ_DATA(i,1) = P_ARIAS_res;
@@ -51,7 +64,14 @@ for i = 1:No_of_GMs
         RZZ_DATA(i,15)= P_damping_res;
         RZZ_DATA(i,16)= P_damping_orth;
         
-        clearvars -except direc Non_Pulse_GMs Pulse_GMs RZZ_DATA i GM_SPECTRA Rrup
+        SA_SPECTRA{i+1,1}  = T'; 
+        SA_SPECTRA{i+1,2}  = []; 
+        SA_SPECTRA{i+1,3}  = [];
+        SA_SPECTRA{i+1,4}  = P_Sa_LP';
+        SA_SPECTRA{i+1,5}  = P_Sa_orth'; 
+        SA_SPECTRA{i+1,6}  = 1; 
+        
+        clearvars -except direc Non_Pulse_GMs Pulse_GMs RZZ_DATA i Rrup Periods SA_SPECTRA
         
         load([direc,'/Pulse_Classification/GM_',num2str(i),'.mat']);
         RZZ_DATA(i,17) = Tp_SB;
@@ -60,12 +80,13 @@ for i = 1:No_of_GMs
         RZZ_DATA(i,20) = Vp_mMP;
         RZZ_DATA(i,21) = 1;       
         
-        clearvars -except direc Non_Pulse_GMs Pulse_GMs RZZ_DATA i GM_SPECTRA  
+        clearvars -except direc Non_Pulse_GMs Pulse_GMs RZZ_DATA i Periods SA_SPECTRA
     end
     
 end
 
 RZZ_PARAMS = cell2struct(num2cell(RZZ_DATA),{'Ia_maj','Ia_min','D5_95_maj','D5_95_min','D0_30_maj','D0_30_min','D0_5_maj','D0_5_min','fmid_maj','fmid_min','fprime_maj','fprime_min','tmid_maj','tmid_min','Damp_maj','Damp_min','Tp_SB','Tp_nMP','Vp_SB','Vp_nMP','Is_Pulse'},2);
 save ([direc,'/RZZ_Params.mat'],'RZZ_PARAMS')
+save ([direc,'/Sa_Spectra.mat'],'SA_SPECTRA')
 
 
