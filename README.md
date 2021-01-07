@@ -16,15 +16,15 @@ The following inputs within the code are required:
       'GM_Input_File'      --> GM Input File containing the time-histories, DT and RRUP (as mentioned above)  
       'Results_Folder'     --> Folder that will contain the output RZZ parameters
       'Damping_Ratio'      --> Damping Rato of SDOF  
-      'Periods_for_Sa'     --> Periods for computing Sa for both components (after rotations as per the provided reference) of GMs
+      'Periods_for_Sa'     --> Periods for computing Sa for both components (after rotation as per the provided reference) of GMs
 
 
 OUTPUT:
 
 The code will create 3 sub-folders inside 'Results_Folder' which include:
 
-      'Non_Pulse_Like_GMs'    -->  contains RZZ parameters of GMs classified as Non-Pulse-Like
-      'Pulse_Like_GMs'        -->  contains RZZ parameters of GMs classified as Pulse-Like
+      'Non_Pulse_Like_GMs'    -->  contains RZZ parameters and Component Sa (after rotation as per the provided reference) of GMs classified as Non-Pulse-Like
+      'Pulse_Like_GMs'        -->  contains RZZ parameters and Component Sa (after rotation as per the provided reference) of GMs classified as Pulse-Like
       'Pulse_Classification'  -->  contains Pulse Classification parameters 
 
 
