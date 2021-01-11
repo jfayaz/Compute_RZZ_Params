@@ -30,15 +30,20 @@
 %
 % OUTPUT:
 % The code will create 3 sub-folders inside 'Results_Folder' which include:
-%     'Non_Pulse_Like_GMs'    -->  contains RZZ parameters and Component Sa of GMs classified as Non-Pulse-Like
-%     'Pulse_Like_GMs'        -->  contains RZZ parameters and Component Sa of GMs classified as Pulse-Like
+%     'Non_Pulse_Like_GMs'    -->  contains RZZ parameters and Component Sa (after rotation as per the provided reference) of GMs classified as Non-Pulse-Like
+%     'Pulse_Like_GMs'        -->  contains RZZ parameters and Component Sa (after rotation as per the provided reference) of GMs classified as Pulse-Like
 %     'Pulse_Classification'  -->  contains Pulse Classification parameters                
 %
 % The indices of the results are in the same order as the provided GMs
 % 
 % The code will also create 'RZZ_Params' .mat and .xlsx files that contain the important 
 % RZZs that are useful for engineering analysis. These results are also present in the workspace
-% variable named 'RZZ_PARAMS'.
+% variable named 'RZZ_PARAMS'. The field names contain either '_maj' or '_min' which refers to the 
+% component of GM (after rotation as per the provided reference). 
+%        '_maj' --> refers to 'Major' component for Non-Pulse-Like and Far-Field GMs, and 
+%                   refers to 'Largest Pulse' component for Pulse-Like GMs
+%        '_min' --> refers to 'Intermediate' component for Non-Pulse-Like and Far-Field GMs, and 
+%                   refers to 'Orthogonal' component for Pulse-Like GMs
 % Also, the Sa of the rotated components will be provided as 'SA_SPECTRA' variable and saved as 'SA_SPECTRA.mat'
 %
 % NOTE:
@@ -90,12 +95,7 @@ z  = Damping_Ratio*ones(1,length(Periods_for_Sa));
 dy = 100*ones(1,length(Periods_for_Sa));            
 alpha = 0;                             
 
-numcores = feature('numcores')-2;
-if numcores < 1
-    numcores = 1;
-else
-    numcores = numcores;
-end
+numcores = max([1, feature('numcores')-2]);
 parpool(numcores);
 pctRunOnAll warning('off','all');
 
