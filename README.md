@@ -28,7 +28,11 @@ The code will create 3 sub-folders inside 'Results_Folder' which include:
       'Pulse_Classification'  -->  contains Pulse Classification parameters 
 
 
-The indices of the results are in the same order as the provided GMs. The code will also create 'RZZ_Params' .mat and .xlsx files that contain the important RZZs that are useful for engineering analysis. These results are also present in the workspace variable named 'RZZ_PARAMS'
+The indices of the results are in the same order as the provided GMs. % The code will also create 'RZZ_Params' .mat and .xlsx files that contain the important RZZs that are useful for engineering analysis. These results are also present in the workspace variable named 'RZZ_PARAMS'. The field names contain either '_maj' or '_min' which refers to the component of GM (after rotation as per the provided reference). 
+                
+        '_maj' --> refers to 'Major' component for Non-Pulse-Like and Far-Field GMs, and refers to 'Largest Pulse' component for Pulse-Like GMs   
+        '_min' --> refers to 'Intermediate' component for Non-Pulse-Like and Far-Field GMs, and refers to 'Orthogonal' component for Pulse-Like GMs
+                   
 
 Also, the Sa of the rotated components will be provided as 'SA_SPECTRA' variable and saved as 'SA_SPECTRA.mat'
 
